@@ -1,0 +1,38 @@
+hex_data = [
+    0xff, 0xff, 0xff, 0xff, 0x94, 0x55, 0x57, 0x43,
+    0xa9, 0x4f, 0x5b, 0xfc, 0xa0, 0x08, 0x00, 0xe8,
+    0xab, 0x39, 0xbc, 0xcf, 0x52, 0x0a, 0xca, 0x4a,
+    0x50, 0x16, 0xde, 0xb0, 0xda, 0xcd, 0xa3, 0xcc,
+    0xd7, 0x05, 0xa9, 0x5d, 0x5c, 0x66, 0x41, 0x01,
+    0x14, 0xe3, 0x3c, 0x2b, 0xf3, 0x96, 0x44, 0x39,
+    0x9c, 0x36, 0xa7, 0x60
+]
+
+payload = bytes(hex_data)
+
+# now you can slice according to the Meshtastic frame structure
+# for example:
+preamble = payload[:4]
+header = payload[4:8]
+body = payload[8:-1]
+crc = payload[-1]
+
+print("Preamble:", preamble.hex())
+print("Header:", header.hex())
+print("Body:", body.hex())
+print("CRC:", crc)
+
+
+body_bytes = payload[8:-1]
+flags = body_bytes[0]
+src_node_id = int.from_bytes(body_bytes[1:3], 'big')
+dest_node_id = int.from_bytes(body_bytes[3:5], 'big')
+msg_type = body_bytes[5]
+msg_payload = body_bytes[6:]
+
+print("Flags:", flags)
+print("Source Node:", src_node_id)
+print("Destination Node:", dest_node_id)
+print("Message Type:", msg_type)
+print("Payload:", msg_payload.hex())
+
