@@ -1,4 +1,4 @@
-this is a ubuntu 25 docker container with xrdp and gnuradio for decoding mesh packets
+## ubuntu 25 docker container with xrdp and gnuradio for decoding mesh packets
 
 someone else did all the hard work of making 
 gnuradio decode lora 
@@ -7,7 +7,7 @@ meshtastic gnuradio decode:
 - https://gitlab.com/crankylinuxuser/meshtastic_sdr 
 
 
-
+<br>
 
 
 ## how to use this container
