@@ -1,6 +1,10 @@
 this is a ubuntu 25 docker container with xrdp and gnuradio
 
-someone else did all the hard work of making gnuradio decode lora & meshtastic: https://gitlab.com/crankylinuxuser/meshtastic_sdr 
+someone else did all the hard work of making 
+gnuradio decode lora 
+- https://github.com/tapparelj/gr-lora_sdr
+meshtastic gnuradio decode:
+- https://gitlab.com/crankylinuxuser/meshtastic_sdr 
 
 
 
