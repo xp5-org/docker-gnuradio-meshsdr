@@ -1,4 +1,4 @@
-this is a ubuntu 25 docker container with xrdp and gnuradio
+this is a ubuntu 25 docker container with xrdp and gnuradio for decoding mesh packets
 
 someone else did all the hard work of making 
 gnuradio decode lora 
@@ -10,13 +10,20 @@ meshtastic gnuradio decode:
 
 
 
+## how to use this container
 
-need to set permissions on the usb device in the host so the 'user' in docker container can see it
+<br>
 
+### check lsusb of docker host, with SDR plugged in
 ```
 /meshsdr$ lsusb | grep -i rtl
 Bus 003 Device 003: ID 0bda:2838 Realtek Semiconductor Corp. RTL2838 DVB-T
+```
+<br>
 
+### set USB device permissions on the host
+
+```
 /meshsdr$ getfacl /dev/bus/usb/003/003
 getfacl: Removing leading '/' from absolute path names
 # file: dev/bus/usb/003/003
@@ -40,13 +47,30 @@ group::rw-
 mask::rw-
 other::rw-
 ```
+<br>
+
+### get the dockerfile
+
+```
+git clone https://github.com/xp5-org/docker-gnuradio-meshsdr.git
+```
+<br>
+
+### build container
+
+```
+docker build ./ -t meshsdr
+```
+<br>
+
+### run the docker container 
 
 ```
 /meshsdr$ docker run --rm -p 3389:3389 \
     -e USERNAME=user \
     -e USERPASSWORD=a \
     --device /dev/bus/usb/003/003 \
-    meshsim:latest
+    meshsdr:latest
 
 USERPASSWORD: a
 USERNAME: user
@@ -70,7 +94,29 @@ debug4
 
 <br>
 
-using a v1 RTL-SDR:
+### connect to remote desktop and start the run script 
 
+using a v1 RTL-SDR:
 <img width="1021" height="797" alt="image" src="https://github.com/user-attachments/assets/8cdbbbdb-fdb3-40a8-9f0a-14b9a135a638" />
+
+
+<br>
+<br>
+
+## example connecting to gnuradio ZMQ output to receive the packet from LongFast
+
+```
+python3 - <<'EOF'
+import zmq
+ctx = zmq.Context()
+sock = ctx.socket(zmq.SUB)
+sock.connect("tcp://127.0.0.1:20004")
+sock.setsockopt_string(zmq.SUBSCRIBE, "")
+while True:
+    msg = sock.recv()
+    print(msg)
+EOF
+```
+
+<img width="1277" height="719" alt="image" src="https://github.com/user-attachments/assets/04b6e35f-1d8b-41de-bfbf-3fc4d0cac606" />
 
