@@ -57,7 +57,14 @@ RUN apt-get update && \
         xdotool \
         python3-tk \
         gnuradio* \
-        python3-gi gir1.2-gtk-3.0 libgtk-3-dev rtl-sdr gr-osmosdr\
+        python3-gi gir1.2-gtk-3.0 libgtk-3-dev rtl-sdr gr-osmosdr \
+        libusb-1.0-0-dev \
+        librtlsdr-dev \
+        rtl-sdr \
+        cmake \
+        g++ \
+        make \
+        git \
         unzip && \
     apt-get remove -y light-locker xscreensaver && \
     apt-get autoremove -y && \
@@ -86,7 +93,6 @@ RUN mkdir -p /home/user/Meshtasticator/Meshtasticator-device && \
 
 
 
-
 # ----------------
 # setup lora sdr dependencies
 # -------------------
@@ -102,7 +108,6 @@ WORKDIR /data/
 RUN git clone https://gitlab.com/crankylinuxuser/meshtastic_sdr 
 RUN git clone https://github.com/tapparelj/gr-lora_sdr.git
 
-
 # install conda
 WORKDIR /data/gr-lora_sdr
 RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
@@ -116,23 +121,45 @@ RUN /opt/conda/bin/conda tos accept --override-channels --channel https://repo.a
 RUN cp environment.yml /tmp/environment.yml
 RUN /opt/conda/bin/conda env create -f /tmp/environment.yml -p /opt/conda/envs/gr310 -y
 #    /opt/conda/bin/conda clean -afy
-
 ENV PATH=/opt/conda/envs/gr310/bin:/opt/conda/bin:$PATH
 
-# build lora sdr blocks
+# use bash for conda activation
+SHELL ["/bin/bash", "-c"]
+
+WORKDIR /data/gr-lora_sdr
 RUN mkdir build && cd build && \
-    cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local && \
-    make install -j$(( ($(nproc) / 2) > 0 ? $(nproc) / 2 : 1 )) && \
+    source /opt/conda/etc/profile.d/conda.sh && \
+    conda activate gr310 && \
+    cmake .. -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX && \
+    make install -j"$(nproc)"
+
+# build osmocom in the conda env
+SHELL ["/bin/sh", "-c"]
+WORKDIR /data
+RUN git clone https://git.osmocom.org/gr-osmosdr
+
+SHELL ["/bin/bash", "-c"]
+
+WORKDIR /data/gr-osmosdr
+RUN rm -rf build && mkdir build && cd build && \
+    source /opt/conda/etc/profile.d/conda.sh && \
+    conda activate gr310 && \
+    export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH && \
+    CC=/usr/bin/gcc CXX=/usr/bin/g++ cmake .. \
+        -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
+        -DENABLE_DEFAULT=OFF \
+        -DENABLE_RTL=ON \
+        -DLIBRTLSDR_INCLUDE_DIR=/usr/include \
+        -DLIBRTLSDR_LIBRARIES=/usr/lib/x86_64-linux-gnu/librtlsdr.so \
+        -DCMAKE_CXX_FLAGS="-I/usr/include/libusb-1.0" && \
+    make -j$(( ($(nproc) / 2) > 0 ? $(nproc) / 2 : 1 )) && \
+    make install
 
 # make it so non root users can write and exec
 RUN chgrp -R users /opt/conda/envs && \
     chmod -R g+rwx /opt/conda/envs && \
     chmod g+s /opt/conda/envs && \
     chmod -R 0775 /opt/conda/envs
-
-
-
-
 
 
 # ----------------
@@ -147,6 +174,8 @@ RUN python3 -m venv /opt/venv && \
 
 ENV VENV_PATH=/opt/venv
 ENV PATH="$VENV_PATH/bin:$PATH"
+
+
 
 
 

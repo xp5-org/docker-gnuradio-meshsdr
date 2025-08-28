@@ -9,9 +9,6 @@ hex_data = [
 ]
 
 payload = bytes(hex_data)
-
-# now you can slice according to the Meshtastic frame structure
-# for example:
 preamble = payload[:4]
 header = payload[4:8]
 body = payload[8:-1]
@@ -21,7 +18,6 @@ print("Preamble:", preamble.hex())
 print("Header:", header.hex())
 print("Body:", body.hex())
 print("CRC:", crc)
-
 
 body_bytes = payload[8:-1]
 flags = body_bytes[0]
