@@ -120,3 +120,12 @@ EOF
 
 <img width="1277" height="719" alt="image" src="https://github.com/user-attachments/assets/04b6e35f-1d8b-41de-bfbf-3fc4d0cac606" />
 
+<br>
+
+## using meshtastic_gnuradio_RX.py to decrypt & decode protobufs
+this is a python script from https://gitlab.com/crankylinuxuser/meshtastic_sdr
+<br>
+
+<img width="1348" height="644" alt="image" src="https://github.com/user-attachments/assets/2acbe5a0-178c-4fd0-bb95-f8d1eaff9667" />
+
+
