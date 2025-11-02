@@ -72,14 +72,13 @@ RUN apt-get update && \
 
 
 
+
 # Fix XRDP/X11 setup
 RUN mkdir -p /var/run/dbus && \
     cp /etc/X11/xrdp/xorg.conf /etc/X11 || true && \
     sed -i "s/console/anybody/g" /etc/X11/Xwrapper.config && \
     sed -i "s|xrdp/xorg|xorg|g" /etc/xrdp/sesman.ini && \
     echo "xfce4-session" >> /etc/skel/.Xsession
-
-
 
 
 
@@ -168,7 +167,7 @@ RUN chgrp -R users /opt/conda/envs && \
 WORKDIR /data/Meshtasticator/Meshtasticator-device
 RUN python3 -m venv /opt/venv && \
     /opt/venv/bin/pip install --upgrade pip && \
-    /opt/venv/bin/pip install platformio PyYAML matplotlib meshtastic scipy && \
+    /opt/venv/bin/pip install platformio PyYAML matplotlib meshtastic scipy pyzmq meshtastic cryptography&& \
     chgrp -R users /opt/venv && chmod -R g+rwX /opt/venv && \
     find /opt/venv -type d -exec chmod g+s {} \;
 
